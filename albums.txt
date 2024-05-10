@@ -1,0 +1,47 @@
+4
+CHARLIE
+Charlie Puth
+image/CHARLIE.png
+3
+I don't think that I like her
+tracks/I_Don't_Think_That_I_like_her.mp3
+Smells like me
+tracks/Smells_Like_Me.mp3
+Charlie be quiet!
+tracks/Charlie_Be_Quiet!.mp3
+Freudian
+Daniel Caesar
+image/Freudian.png
+6
+Best Part
+tracks/Best_Part.mp3
+Blessed
+tracks/Blessed.mp3
+Get You
+tracks/Get_You.mp3
+Hold me down
+tracks/Hold_Me_Down.mp3
+Neu Roses
+tracks/Neu_Roses.mp3
+We Find Love
+tracks/We_Find_Love.mp3
+OP.01
+Kwon Youngchan
+image/haisam.png
+2
+Dawn
+tracks/Dawn.mp3
+Star
+tracks/Star.mp3
+sinh
+Mer
+image/sinh.png
+4
+em
+tracks/em.mp3
+tâm
+tracks/tâm.mp3
+last day on earth
+tracks/last_day_on_earth.mp3
+another chance
+tracks/another_chance.mp3
