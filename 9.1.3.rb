@@ -1,8 +1,8 @@
 require 'rubygems'
 require 'gosu'
 
-TOP_COLOR = Gosu::Color.new(0xFF1EB1FA)
-BOTTOM_COLOR = Gosu::Color.new(0x97C0EF)
+TOP_COLOR = Gosu::Color.new(0xff_808080)
+BOTTOM_COLOR = Gosu::Color::WHITE
 ARTWORK_WIDTH = 200
 
 module ZOrder
@@ -95,72 +95,90 @@ class MusicPlayerMain < Gosu::Window
 		@albums = get_albums('albums.txt')
 		@artworks = read_artwork(@albums)
 
-        @font = Gosu::Font.new(15)
+        @font = Gosu::Font.new(18)
 		@track_font = Gosu::Font.new(25)
 
-		@chosed_song = 0
+		@chose_song = 0
+		@chose_album = 0
 		@song = nil
-		@tracks = {}
 		
-		@another_song = true
-
-		@text_to_display = []
-		@text_to_display1 = []
-		@text_to_display2 = []
-		@text_to_display3 = []
-
-		@album_title_colors = [Gosu::Color::WHITE] * @albums.length
-
-		populate_tracks
+		@another_song = false
 	end
 
-	def draw_albums(albums)
+	def draw_albums()
 		# Draw album artworks
-		@artworks.each_with_index do |artwork, index|
-		  x = index.even? ? 22 : 267
-		  y = index < 2 ? 26 : 270
-		  artwork.draw(x, y, ZOrder::TOP)
-		end
+		@artworks[0].draw(32, 22, ZOrder::TOP)
+		@artworks[1].draw(288, 22, ZOrder::TOP)
+		@artworks[2].draw(32, 267, ZOrder::TOP)
+		@artworks[3].draw(288, 267, ZOrder::TOP)
 	  
 		# Draw album titles
-		@font.draw_text("CHARLIE", 100, 235, ZOrder::TOP, 1.0, 1.0, @album_title_colors[0])
-		@font.draw_text("Freudian", 100, 475, ZOrder::TOP, 1.0, 1.0, @album_title_colors[1])
-		@font.draw_text("OP.01", 346, 235, ZOrder::TOP, 1.0, 1.0, @album_title_colors[2])
-		@font.draw_text("sinh", 355, 475, ZOrder::TOP, 1.0, 1.0, @album_title_colors[3])
+		color = Gosu::Color::WHITE
+		chose_color = Gosu::Color::BLACK
+
+		if @chose_album == 0
+			@font.draw_text(@albums[0].title, 100, 235, ZOrder::TOP, 1.0, 1.0, chose_color)
+		else
+			@font.draw_text(@albums[0].title, 100, 235, ZOrder::TOP, 1.0, 1.0, color)
+		end
+
+		if @chose_album == 1
+			@font.draw_text(@albums[1].title, 365, 235, ZOrder::TOP, 1.0, 1.0, chose_color)
+		else
+			@font.draw_text(@albums[1].title, 365, 235, ZOrder::TOP, 1.0, 1.0, color)
+		end
+
+		if @chose_album == 2
+			@font.draw_text(@albums[2].title, 100, 475, ZOrder::TOP, 1.0, 1.0, chose_color)
+		else
+			@font.draw_text(@albums[2].title, 100, 475, ZOrder::TOP, 1.0, 1.0, color)
+		end
+
+		if @chose_album == 3
+			@font.draw_text(@albums[3].title, 375, 475, ZOrder::TOP, 1.0, 1.0, chose_color)
+		else
+			@font.draw_text(@albums[3].title, 375, 475, ZOrder::TOP, 1.0, 1.0, color)
+		end
 
 	end
 
-	def populate_tracks
-		@albums.each_with_index do |album, album_index|
-			album.tracks.each_with_index do |track, track_index|
-			track_y = 42 + track_index * 45
-			@tracks[track.name] = { x: 520, y: track_y, zorder: ZOrder::TOP, color: Gosu::Color::WHITE }
+	def draw_tracks
+		# use while loop
+		i = 0
+		while i < @albums[@chose_album].tracks.length
+			if i == @chose_song
+				@track_font.draw_text(@albums[@chose_album].tracks[i].name, 520, 42 + i * 50, ZOrder::TOP, 1.0, 1.0, Gosu::Color::BLACK)
+			else
+				@track_font.draw_text(@albums[@chose_album].tracks[i].name, 520, 42 + i * 50, ZOrder::TOP, 1.0, 1.0, Gosu::Color::GRAY)
 			end
+			i += 1
 		end
 	end
 
-
+			
 
   # Takes a track index and an Album and plays the Track from the Album
 
   def playTrack(track, album)
   	 # complete the missing code
-  			@song = Gosu::Song.new(album.tracks[track].location)
-  			@song.play(false)
-    # Uncomment the following and indent correctly:
-  	#	end
-  	# end
+	if @another_song
+		@song = Gosu::Song.new(album.tracks[track].location)
+		@song.play(false)
+		@another_song = false
+	end
   end
 
 # Draw a coloured background using TOP_COLOR and BOTTOM_COLOR
 
 	def draw_background
-		Gosu.draw_rect(0, 0, 801, 500, BOTTOM_COLOR, ZOrder::BACKGROUND, mode=:default)
+		Gosu.draw_rect(0, 0, 801, 500, TOP_COLOR, ZOrder::BACKGROUND, mode=:default)
+		Gosu.draw_rect(490, 0, 801, 500, BOTTOM_COLOR, ZOrder::BACKGROUND, mode=:default)
 	end
 
 # Not used? Everything depends on mouse actions.
 
 	def update
+		playTrack(@chose_song, @albums[@chose_album])
 	end
 
  # Draws the album images and the track list for the selected album
@@ -168,27 +186,8 @@ class MusicPlayerMain < Gosu::Window
 	def draw
 		# Complete the missing code
 		draw_background
-		draw_albums(@albums)
-
-		# if @t1
-		# 	@track_font.draw_text(@t1, 520, 42, ZOrder::TOP)
-		# end
-		# if @t2
-		# 	@track_font.draw_text(@t2, 520, 79, ZOrder::TOP)
-		# end
-		@text_to_display.each do |track|
-			@track_font.draw_text(track[:text], track[:x], track[:y], track[:zorder])
-		end
-		@text_to_display1.each do |track|
-			@track_font.draw_text(track[:text], track[:x], track[:y], track[:zorder])
-		end
-		@text_to_display2.each do |track|
-			@track_font.draw_text(track[:text], track[:x], track[:y], track[:zorder])
-		end
-		@text_to_display3.each do |track|
-			@track_font.draw_text(track[:text], track[:x], track[:y], track[:zorder])
-		end
-
+		draw_albums()
+		draw_tracks()
 	end
 
  	def needs_cursor?; true; end
@@ -199,77 +198,38 @@ class MusicPlayerMain < Gosu::Window
 	# these are available and filled with the latest x and y locations of the mouse click.
 
 	def button_down(id)
+
 		case id
 	    when Gosu::MsLeft
-
-			@album_title_colors.map! { Gosu::Color::WHITE }
-
-	    	# What should happen here?
-			if mouse_x.between?(22, 222) && mouse_y.between?(26, 235)
-        # Your code for handling mouse click goes here
-				@album_title_colors[0] = Gosu::Color::AQUA
-      			@text_to_display = []
-
-      # Iterate over all the tracks of the selected album
-      			@albums[0].tracks.each_with_index do |track, i|
-        # Store each track's name and position for drawing
-        		@text_to_display << { text: track.name, x: 520, y: 42 + i * 45, zorder: ZOrder::TOP }
-      		end
-			  @text_to_display1 = []
-			  @text_to_display2 = []
-			  @text_to_display3 = []
-			elsif mouse_x.between?(22, 222) && mouse_y.between?(228, 428)
-		# Your code for handling mouse click goes here
-				@album_title_colors[1] = Gosu::Color::AQUA
-				@text_to_display1 = []
-
-		# Iterate over all the tracks of the selected album
-				@albums[1].tracks.each_with_index do |track, i|
-		# Store each track's name and position for drawing
-				@text_to_display1 << { text: track.name, x: 520, y: 42 + i * 45, zorder: ZOrder::TOP }
-			end
-			@text_to_display = []
-			@text_to_display2 = []
-			@text_to_display3 = []
-			elsif mouse_x.between?(267, 467) && mouse_y.between?(32, 232)
-		# Your code for handling mouse click goes here
-				@album_title_colors[2] = Gosu::Color::AQUA
-				@text_to_display2 = []
-
-		# Iterate over all the tracks of the selected album
-				@albums[2].tracks.each_with_index do |track, i|
-		# Store each track's name and position for drawing
-				@text_to_display2 << { text: track.name, x: 520, y: 42 + i * 45, zorder: ZOrder::TOP }
-			end
-			@text_to_display = []
-			@text_to_display1 = []
-			@text_to_display3 = []
-			elsif mouse_x.between?(267, 467) && mouse_y.between?(287, 487)
-		# Your code for handling mouse click goes here
-				@album_title_colors[3] = Gosu::Color::AQUA
-				@text_to_display3 = []
-
-		# Iterate over all the tracks of the selected album
-				@albums[3].tracks.each_with_index do |track, i|
-		# Store each track's name and position for drawing
-				@text_to_display3 << { text: track.name, x: 520, y: 42 + i * 45, zorder: ZOrder::TOP }
-			end
-			@text_to_display = []
-			@text_to_display1 = []
-			@text_to_display2 = []
-
-			@tracks.each do |track_name, track_info|
-				if mouse_x.between?(track_info[:x], track_info[:x] + @track_font.text_width(track_name)) &&
-				   mouse_y.between?(track_info[:y], track_info[:y] + @track_font.height)
-
-				   track_info[:color] = Gosu::Color::AQUA
-        		end
+			if mouse_x.between?(32, 32 + 200) and mouse_y.between?(22, 22 + 200)
+				@chose_album = 0
+				@chose_song = 0
+				@another_song = true
+			elsif mouse_x.between?(288, 288 + 200) and mouse_y.between?(22, 22 + 200)
+				@chose_album = 1
+				@chose_song = 0
+				@another_song = true
+			elsif mouse_x.between?(32, 32 + 200) and mouse_y.between?(267, 267 + 200)
+				@chose_album = 2
+				@chose_song = 0
+				@another_song = true
+			elsif mouse_x.between?(288, 288 + 200) and mouse_y.between?(267, 267 + 200)
+				@chose_album = 3
+				@chose_song = 0
+				@another_song = true
 			end
 
+			# Choose track
+			i = 0
+			while i < @albums[@chose_album].tracks.length
+				if mouse_x.between?(520, 520 + 200) and mouse_y.between?(42 + i * 50, 42 + i * 50 + 50)
+					@chose_song = i
+					@another_song = true
+				end
+				i += 1
+			end
 		end
-	end	
-end
-
+	end
 end
 
 
